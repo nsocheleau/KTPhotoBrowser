@@ -35,6 +35,8 @@
    BOOL viewDidAppearOnce_;
    BOOL navbarWasTranslucent_;
    
+    BOOL useFullScreen_;
+    
    NSTimer *chromeHideTimer_;
    
    UIBarButtonItem *nextButton_;
@@ -44,7 +46,7 @@
 @property (nonatomic, assign) UIStatusBarStyle statusBarStyle;
 @property (nonatomic, assign, getter=isStatusbarHidden) BOOL statusbarHidden;
 
-- (id)initWithDataSource:(id <KTPhotoBrowserDataSource>)dataSource andStartWithPhotoAtIndex:(NSUInteger)index;
+- (id)initWithDataSource:(id <KTPhotoBrowserDataSource>)dataSource andStartWithPhotoAtIndex:(NSUInteger)index fullScreen:(BOOL)useFullScreen;
 - (void)toggleChromeDisplay;
 
 @end

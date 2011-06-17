@@ -56,15 +56,15 @@ const CGFloat ktkDefaultToolbarHeight = 44;
    [super dealloc];
 }
 
-- (id)initWithDataSource:(id <KTPhotoBrowserDataSource>)dataSource andStartWithPhotoAtIndex:(NSUInteger)index 
+- (id)initWithDataSource:(id <KTPhotoBrowserDataSource>)dataSource andStartWithPhotoAtIndex:(NSUInteger)index fullScreen:(BOOL)useFullScreen
 {
-   if (self = [super init]) {
+   if ((self = [super init])) {
      startWithIndex_ = index;
      dataSource_ = [dataSource retain];
-     
+       useFullScreen_ = useFullScreen;
      // Make sure to set wantsFullScreenLayout or the photo
      // will not display behind the status bar.
-     [self setWantsFullScreenLayout:YES];
+     [self setWantsFullScreenLayout:useFullScreen];
 
      BOOL isStatusbarHidden = [[UIApplication sharedApplication] isStatusBarHidden];
      [self setStatusbarHidden:isStatusbarHidden];
@@ -210,18 +210,18 @@ const CGFloat ktkDefaultToolbarHeight = 44;
 - (void)viewWillAppear:(BOOL)animated 
 {
    [super viewWillAppear:animated];
-   
-   // The first time the view appears, store away the previous controller's values so we can reset on pop.
-   UINavigationBar *navbar = [[self navigationController] navigationBar];
-   if (!viewDidAppearOnce_) {
-      viewDidAppearOnce_ = YES;
-      navbarWasTranslucent_ = [navbar isTranslucent];
-      statusBarStyle_ = [[UIApplication sharedApplication] statusBarStyle];
-   }
-   // Then ensure translucency. Without it, the view will appear below rather than under it.  
-   [navbar setTranslucent:YES];
-   [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
-
+    if ( useFullScreen_ ){
+        // The first time the view appears, store away the previous controller's values so we can reset on pop.
+        UINavigationBar *navbar = [[self navigationController] navigationBar];
+        if (!viewDidAppearOnce_) {
+            viewDidAppearOnce_ = YES;
+            navbarWasTranslucent_ = [navbar isTranslucent];
+            statusBarStyle_ = [[UIApplication sharedApplication] statusBarStyle];
+        }
+        // Then ensure translucency. Without it, the view will appear below rather than under it.  
+        [navbar setTranslucent:YES];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
+    }
    // Set the scroll view's content size, auto-scroll to the stating photo,
    // and setup the other display elements.
    [self setScrollViewContentSize];
@@ -235,10 +235,12 @@ const CGFloat ktkDefaultToolbarHeight = 44;
 
 - (void)viewWillDisappear:(BOOL)animated 
 {
-  // Reset nav bar translucency and status bar style to whatever it was before.
-  UINavigationBar *navbar = [[self navigationController] navigationBar];
-  [navbar setTranslucent:navbarWasTranslucent_];
-  [[UIApplication sharedApplication] setStatusBarStyle:statusBarStyle_ animated:YES];
+    if ( useFullScreen_ ){
+        // Reset nav bar translucency and status bar style to whatever it was before.
+        UINavigationBar *navbar = [[self navigationController] navigationBar];
+        [navbar setTranslucent:navbarWasTranslucent_];
+        [[UIApplication sharedApplication] setStatusBarStyle:statusBarStyle_ animated:YES];
+    }
   [super viewWillDisappear:animated];
 }
 
@@ -437,14 +439,15 @@ const CGFloat ktkDefaultToolbarHeight = 44;
    [self layoutScrollViewSubviews];
    // Rotate the toolbar.
    [self updateToolbarWithOrientation:toInterfaceOrientation];
-   
-   // Adjust navigation bar if needed.
-   if (isChromeHidden_ && statusbarHidden_ == NO) {
-      UINavigationBar *navbar = [[self navigationController] navigationBar];
-      CGRect frame = [navbar frame];
-      frame.origin.y = 20;
-      [navbar setFrame:frame];
-   }
+    if ( useFullScreen_) {
+        // Adjust navigation bar if needed.
+        if (isChromeHidden_ && statusbarHidden_ == NO) {
+            UINavigationBar *navbar = [[self navigationController] navigationBar];
+            CGRect frame = [navbar frame];
+            frame.origin.y = 20;
+            [navbar setFrame:frame];
+        }
+    }
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation 
@@ -473,23 +476,24 @@ const CGFloat ktkDefaultToolbarHeight = 44;
       [UIView beginAnimations:nil context:nil];
       [UIView setAnimationDuration:0.4];
    }
-   
-   if ( ! [self isStatusbarHidden] ) {     
-     if ([[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)]) {
-       [[UIApplication sharedApplication] setStatusBarHidden:hide withAnimation:NO];
-     } else {  // Deprecated in iOS 3.2+.
-       id sharedApp = [UIApplication sharedApplication];  // Get around deprecation warnings.
-       [sharedApp setStatusBarHidden:hide animated:NO];
-     }
-   }
-
+    if (useFullScreen_) {
+        if ( ! [self isStatusbarHidden] ) {     
+            if ([[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)]) {
+                [[UIApplication sharedApplication] setStatusBarHidden:hide withAnimation:NO];
+            } else {  // Deprecated in iOS 3.2+.
+                id sharedApp = [UIApplication sharedApplication];  // Get around deprecation warnings.
+                [sharedApp setStatusBarHidden:hide animated:NO];
+            }
+        }
+    }
    CGFloat alpha = hide ? 0.0 : 1.0;
    
-   // Must set the navigation bar's alpha, otherwise the photo
-   // view will be pushed until the navigation bar.
-   UINavigationBar *navbar = [[self navigationController] navigationBar];
-   [navbar setAlpha:alpha];
-
+    if ( useFullScreen_ ) {
+        // Must set the navigation bar's alpha, otherwise the photo
+        // view will be pushed until the navigation bar.
+        UINavigationBar *navbar = [[self navigationController] navigationBar];
+        [navbar setAlpha:alpha];
+    }
    [toolbar_ setAlpha:alpha];
 
    if (hide) {

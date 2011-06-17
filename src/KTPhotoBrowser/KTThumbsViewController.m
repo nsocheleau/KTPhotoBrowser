@@ -20,16 +20,32 @@
 
 @synthesize dataSource = dataSource_;
 
+
+- (id)initWithNibName:(NSString *)nibName bundle:(NSBundle *)nibBundle fullScreen:(BOOL)useFullScreen{
+    if ( (self = [super initWithNibName:nibName bundle:nibBundle]) ){
+        useFullScreen_ = useFullScreen;
+    }
+    return self;    
+}
+
+- (id)initWithNibName:(NSString *)nibName bundle:(NSBundle *)nibBundle {
+    return [self initWithNibName:nibName bundle:nibBundle fullScreen:YES];
+}
+
 - (void)dealloc {
    [scrollView_ release], scrollView_ = nil;
    
    [super dealloc];
 }
 
+- (void)useFullScreen:(BOOL)fullScreenMode{
+    useFullScreen_ = fullScreenMode;
+}
+
 - (void)loadView {
    // Make sure to set wantsFullScreenLayout or the photo
    // will not display behind the status bar.
-   [self setWantsFullScreenLayout:YES];
+   [self setWantsFullScreenLayout:useFullScreen_];
 
    KTThumbsView *scrollView = [[KTThumbsView alloc] initWithFrame:CGRectZero];
    [scrollView setDataSource:self];
@@ -72,20 +88,24 @@
 
 - (void)viewWillAppear:(BOOL)animated {
   // The first time the view appears, store away the current translucency so we can reset on pop.
-  UINavigationBar *navbar = [[self navigationController] navigationBar];
-  if (!viewDidAppearOnce_) {
-    viewDidAppearOnce_ = YES;
-    navbarWasTranslucent_ = [navbar isTranslucent];
-  }
-  // Then ensure translucency to match the look of Apple's Photos app.
-  [navbar setTranslucent:YES];
+    if ( useFullScreen_ ){
+        UINavigationBar *navbar = [[self navigationController] navigationBar];
+        if (!viewDidAppearOnce_) {
+            viewDidAppearOnce_ = YES;
+            navbarWasTranslucent_ = [navbar isTranslucent];
+        }
+        // Then ensure translucency to match the look of Apple's Photos app.
+        [navbar setTranslucent:YES];
+    }
   [super viewWillAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-  // Restore old translucency when we pop this controller.
-  UINavigationBar *navbar = [[self navigationController] navigationBar];
-  [navbar setTranslucent:navbarWasTranslucent_];
+    if ( useFullScreen_ ){
+        // Restore old translucency when we pop this controller.
+        UINavigationBar *navbar = [[self navigationController] navigationBar];
+        [navbar setTranslucent:navbarWasTranslucent_];
+    }
   [super viewWillDisappear:animated];
 }
 
@@ -116,7 +136,8 @@
 - (void)didSelectThumbAtIndex:(NSUInteger)index {
    KTPhotoScrollViewController *newController = [[KTPhotoScrollViewController alloc] 
                                                         initWithDataSource:dataSource_ 
-                                                  andStartWithPhotoAtIndex:index];
+                                                  andStartWithPhotoAtIndex:index
+                                                  fullScreen:useFullScreen_];
   
    [[self navigationController] pushViewController:newController animated:YES];
    [newController release];

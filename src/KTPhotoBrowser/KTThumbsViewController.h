@@ -19,9 +19,20 @@
    KTThumbsView *scrollView_;
    BOOL viewDidAppearOnce_;
    BOOL navbarWasTranslucent_;
+    BOOL useFullScreen_;
 }
 
 @property (nonatomic, retain) id <KTPhotoBrowserDataSource> dataSource;
+
+/**
+ * Init with a switch to use full screeen or not
+ */
+- (id)initWithNibName:(NSString *)nibName bundle:(NSBundle *)nibBundle fullScreen:(BOOL)useFullScreen;
+
+/**
+ * Change the mode for the browser to full Screen or not
+ */
+- (void)useFullScreen:(BOOL)fullScreenMode;
 
 /**
  * Re-displays the thumbnail images.
