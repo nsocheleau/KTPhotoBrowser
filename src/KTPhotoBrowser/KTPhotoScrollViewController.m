@@ -385,7 +385,12 @@ const CGFloat ktkDefaultToolbarHeight = 44;
    if ((interfaceOrientation) == UIInterfaceOrientationPortrait || (interfaceOrientation) == UIInterfaceOrientationPortraitUpsideDown) {
       toolbarFrame.size.height = ktkDefaultPortraitToolbarHeight;
    } else {
-      toolbarFrame.size.height = ktkDefaultLandscapeToolbarHeight+1;
+       if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+           toolbarFrame.size.height = ktkDefaultToolbarHeight;
+       }
+       else {
+           toolbarFrame.size.height = ktkDefaultLandscapeToolbarHeight+1;
+       }
    }
    
    toolbarFrame.size.width = self.view.frame.size.width;
