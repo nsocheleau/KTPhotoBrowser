@@ -35,6 +35,8 @@ const CGFloat ktkDefaultToolbarHeight = 44;
 - (void)unloadPhoto:(NSInteger)index;
 - (void)trashPhoto;
 - (void)exportPhoto;
+- (void)layoutScrollViewSubviews;
+- (void)updateToolbarWithOrientation:(UIInterfaceOrientation)interfaceOrientation;
 @end
 
 @implementation KTPhotoScrollViewController
@@ -230,6 +232,8 @@ const CGFloat ktkDefaultToolbarHeight = 44;
 
    [self setTitleWithCurrentPhotoIndex];
    [self toggleNavButtons];
+    [self layoutScrollViewSubviews];
+    [self updateToolbarWithOrientation:[self interfaceOrientation]];
    [self startChromeDisplayTimer];
 }
 
