@@ -224,6 +224,8 @@ const CGFloat ktkDefaultToolbarHeight = 44;
         [navbar setTranslucent:YES];
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
     }
+    [self layoutScrollViewSubviews];
+    [self updateToolbarWithOrientation:[self interfaceOrientation]];
    // Set the scroll view's content size, auto-scroll to the stating photo,
    // and setup the other display elements.
    [self setScrollViewContentSize];
@@ -232,8 +234,6 @@ const CGFloat ktkDefaultToolbarHeight = 44;
 
    [self setTitleWithCurrentPhotoIndex];
    [self toggleNavButtons];
-    [self layoutScrollViewSubviews];
-    [self updateToolbarWithOrientation:[self interfaceOrientation]];
    [self startChromeDisplayTimer];
 }
 
