@@ -36,6 +36,8 @@
       [self setShowsHorizontalScrollIndicator:NO];
       [self setShowsVerticalScrollIndicator:NO];
       [self loadSubviewsWithFrame:frame];
+      [self setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+
    }
    return self;
 }
@@ -44,6 +46,8 @@
 {
    imageView_ = [[UIImageView alloc] initWithFrame:frame];
    [imageView_ setContentMode:UIViewContentModeScaleAspectFit];
+   [imageView_ setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+
    [self addSubview:imageView_];
 }
 
