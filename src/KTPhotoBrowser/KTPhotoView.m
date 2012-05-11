@@ -24,6 +24,8 @@
 - (void)dealloc 
 {
    [imageView_ release], imageView_ = nil;
+   [caption_ release], caption_ = nil;
+   [captionLabel_ release], captionLabel_ = nil;
    [super dealloc];
 }
 
@@ -54,6 +56,58 @@
 - (void)setImage:(UIImage *)newImage 
 {
    [imageView_ setImage:newImage];
+}
+
+- (void)setCaption:(NSString *)caption 
+{
+    caption_ = [caption copy];
+    if ( caption_ ){
+        UIFont* labelFont = [UIFont systemFontOfSize:17];
+        CGSize size = [caption_ sizeWithFont:labelFont constrainedToSize:CGSizeMake(280, FLT_MAX) lineBreakMode:UILineBreakModeTailTruncation];
+        
+        CGRect captionFrame = CGRectMake(self.bounds.origin.x+15, self.bounds.size.height - (70+size.height), 290, size.height+10);
+        UIView* view = [[UIView alloc] initWithFrame:captionFrame];
+        view.backgroundColor = [UIColor grayColor];
+        view.layer.cornerRadius = 8.f;
+        view.layer.masksToBounds = YES;
+        view.contentMode = UIViewContentModeRedraw;
+        [view setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin];
+        UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(5, 5, 280, size.height)];
+        [label setFont:labelFont];
+        label.backgroundColor = [UIColor clearColor];
+        label.contentMode = UIViewContentModeRedraw;
+        [label setTextColor:[UIColor whiteColor]];
+        label.numberOfLines = 0;
+        label.text = caption_;
+        view.hidden = YES;
+        [view addSubview:label];
+        [self addSubview:view];
+        captionLabel_ = view;
+    }
+}
+
+-(void)hideCaption{
+    [self toggleCaption:NO animated:YES];
+}
+
+- (void)toggleCaption:(BOOL)visible animated:(BOOL)animated{
+    if ( !caption_  && captionLabel_.hidden == !visible ){
+        return;
+    }
+    if ( animated ){
+        [UIView animateWithDuration:0.4 animations:^{
+            [captionLabel_ setAlpha:visible ? 1.0 : 0.0];
+        } completion:^(BOOL finished) {
+            captionLabel_.hidden = !visible;
+            if ( visible ){
+                [self performSelector:@selector(hideCaption) withObject:nil afterDelay:4];
+            }
+        }];
+    }
+    else{
+        [captionLabel_ setAlpha:visible ? 1.0 : 0.0];
+        captionLabel_.hidden = !visible;
+    }
 }
 
 - (void)layoutSubviews 

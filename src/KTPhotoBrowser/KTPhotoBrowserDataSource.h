@@ -20,10 +20,12 @@
 // Implement either these, for synchronous images…
 - (UIImage *)imageAtIndex:(NSInteger)index;
 - (UIImage *)thumbImageAtIndex:(NSInteger)index;
+- (NSString *)captionAtIndex:(NSInteger)index;
 
 // …or these, for asynchronous images.
 - (void)imageAtIndex:(NSInteger)index photoView:(KTPhotoView *)photoView;
 - (void)thumbImageAtIndex:(NSInteger)index thumbView:(KTThumbView *)thumbView;
+- (void)captionImageAtIndex:(NSInteger)index photoView:(KTPhotoView *)photoView;
 
 - (void)deleteImageAtIndex:(NSInteger)index;
 - (void)exportImageAtIndex:(NSInteger)index;

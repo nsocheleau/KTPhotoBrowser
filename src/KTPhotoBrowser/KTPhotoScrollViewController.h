@@ -38,6 +38,7 @@
     BOOL useFullScreen_;
     
    NSTimer *chromeHideTimer_;
+   NSTimer *captionHideTimer_;
    
    UIBarButtonItem *nextButton_;
    UIBarButtonItem *previousButton_;

@@ -37,6 +37,8 @@ const CGFloat ktkDefaultToolbarHeight = 44;
 - (void)exportPhoto;
 - (void)layoutScrollViewSubviews;
 - (void)updateToolbarWithOrientation:(UIInterfaceOrientation)interfaceOrientation;
+- (void)startCaptionDisplayTimer;
+- (void)cancelCaptionDisplayTimer;
 @end
 
 @implementation KTPhotoScrollViewController
@@ -235,6 +237,8 @@ const CGFloat ktkDefaultToolbarHeight = 44;
    [self setTitleWithCurrentPhotoIndex];
    [self toggleNavButtons];
    [self startChromeDisplayTimer];
+   [self cancelCaptionDisplayTimer];
+    [[photoViews_ objectAtIndex:currentIndex_] toggleCaption:YES animated:NO];
 }
 
 - (void)viewWillDisappear:(BOOL)animated 
@@ -337,6 +341,12 @@ const CGFloat ktkDefaultToolbarHeight = 44;
          } else {
             [dataSource_ imageAtIndex:index photoView:photoView];
          }
+          if ([dataSource_ respondsToSelector:@selector(captionImageAtIndex:photoView:)] == NO) {
+              NSString* caption = [dataSource_ captionAtIndex:index];
+              [photoView setCaption:caption];
+          } else {
+              [dataSource_ captionImageAtIndex:index photoView:photoView];
+          }
       }
       
       [scrollView_ addSubview:photoView];
@@ -373,6 +383,8 @@ const CGFloat ktkDefaultToolbarHeight = 44;
    
    [self setTitleWithCurrentPhotoIndex];
    [self toggleNavButtons];
+    
+    [self startCaptionDisplayTimer];
 }
 
 
@@ -475,7 +487,9 @@ const CGFloat ktkDefaultToolbarHeight = 44;
 
 - (void)toggleChromeDisplay 
 {
-   [self toggleChrome:!isChromeHidden_];
+    BOOL wasHidden = isChromeHidden_;
+   [self toggleChrome:!wasHidden];
+    [[photoViews_ objectAtIndex:currentIndex_] toggleCaption:wasHidden animated:NO];
 }
 
 - (void)toggleChrome:(BOOL)hide 
@@ -520,13 +534,15 @@ const CGFloat ktkDefaultToolbarHeight = 44;
       [chromeHideTimer_ invalidate];
       chromeHideTimer_ = nil;
    }
-   [self toggleChrome:YES];
+    [self toggleChrome:YES];
+     [[photoViews_ objectAtIndex:currentIndex_] toggleCaption:NO animated:YES];
 }
 
 - (void)showChrome 
 {
    [self toggleChrome:NO];
 }
+
 
 - (void)startChromeDisplayTimer 
 {
@@ -546,6 +562,29 @@ const CGFloat ktkDefaultToolbarHeight = 44;
    }
 }
 
+-(void)showCaption{
+    KTPhotoView* view = [photoViews_ objectAtIndex:currentIndex_];
+    [view toggleCaption:YES animated:YES];
+}
+
+- (void)startCaptionDisplayTimer 
+{
+    [self cancelCaptionDisplayTimer];
+    captionHideTimer_ = [[NSTimer scheduledTimerWithTimeInterval:0.5
+                                                        target:self 
+                                                      selector:@selector(showCaption)
+                                                      userInfo:nil
+                                                       repeats:NO] retain];
+}
+
+- (void)cancelCaptionDisplayTimer 
+{
+    if (captionHideTimer_) {
+        [captionHideTimer_ invalidate];
+        [captionHideTimer_ release];
+        captionHideTimer_ = nil;
+    }
+}
 
 #pragma mark -
 #pragma mark UIScrollViewDelegate
@@ -573,12 +612,16 @@ const CGFloat ktkDefaultToolbarHeight = 44;
 {
    [self scrollToIndex:currentIndex_ + 1];
    [self startChromeDisplayTimer];
+    [self cancelCaptionDisplayTimer];
+    [[photoViews_ objectAtIndex:currentIndex_] toggleCaption:YES animated:NO];
 }
 
 - (void)previousPhoto 
 {
    [self scrollToIndex:currentIndex_ - 1];
    [self startChromeDisplayTimer];
+    [self cancelCaptionDisplayTimer];
+    [[photoViews_ objectAtIndex:currentIndex_] toggleCaption:YES animated:NO];
 }
 
 - (void)trashPhoto 

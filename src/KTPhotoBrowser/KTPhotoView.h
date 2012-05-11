@@ -16,18 +16,21 @@
    UIImageView *imageView_;
    KTPhotoScrollViewController *scroller_;
    NSInteger index_;
+   NSString* caption_;
+   UIView* captionLabel_;
 }
 
 @property (nonatomic, assign) KTPhotoScrollViewController *scroller;
 @property (nonatomic, assign) NSInteger index;
 
 - (void)setImage:(UIImage *)newImage;
+- (void)setCaption:(NSString*)caption;
 - (void)turnOffZoom;
 
 - (CGPoint)pointToCenterAfterRotation;
 - (CGFloat)scaleToRestoreAfterRotation;
 - (void)setMaxMinZoomScalesForCurrentBounds;
 - (void)restoreCenterPoint:(CGPoint)oldCenter scale:(CGFloat)oldScale;
-
+- (void)toggleCaption:(BOOL)visible animated:(BOOL)animated;
 
 @end
