@@ -61,17 +61,17 @@
 - (void)setCaption:(NSString *)caption 
 {
     caption_ = [caption copy];
-    if ( caption_ ){
+    if ( [caption_ length] > 0 ){
         UIFont* labelFont = [UIFont systemFontOfSize:17];
         CGSize size = [caption_ sizeWithFont:labelFont constrainedToSize:CGSizeMake(280, FLT_MAX) lineBreakMode:UILineBreakModeTailTruncation];
         
-        CGRect captionFrame = CGRectMake(self.bounds.origin.x+15, self.bounds.size.height - (70+size.height), 290, size.height+10);
+        CGRect captionFrame = CGRectMake((self.bounds.size.width-290)/2.f, self.bounds.size.height - (70+size.height), 290, size.height+10);
         UIView* view = [[UIView alloc] initWithFrame:captionFrame];
         view.backgroundColor = [UIColor grayColor];
         view.layer.cornerRadius = 8.f;
         view.layer.masksToBounds = YES;
         view.contentMode = UIViewContentModeRedraw;
-        [view setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin];
+        [view setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin];
         UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(5, 5, 280, size.height)];
         [label setFont:labelFont];
         label.backgroundColor = [UIColor clearColor];
